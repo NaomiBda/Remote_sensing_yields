@@ -1,8 +1,6 @@
 import geopandas as gpd
-
 import matplotlib.pyplot as plt 
 from descartes import PolygonPatch
-
 
 
 ##fonctions
@@ -15,7 +13,7 @@ class Shapefile(object):
         
     def load_shapefile(self):
         """
-        crée une liste de geodataframes qui correspondent au shapefiles en entrée
+        Creates a list of Geodataframes, corresponding to the shapefiles input
         
         """
         self.SHP=[]
@@ -26,7 +24,7 @@ class Shapefile(object):
         
     def  change_projection(self,projection):
         """
-        mets tous les shapefiles en projection 4326
+        Puts all the shapefile in the projection wanted (4326)
         """
         self.load_shapefile()
         idproj = projection[5:] #id of the projection_ Ex:4326
@@ -37,11 +35,11 @@ class Shapefile(object):
 
     def plot_shapefiles(self):
         """
-        affiche la superposition des shapefiles
+        PLot the shapefiles altogether
         """
         colors=['#ffff00','#6699cc','#791cf8','#FF69B4','#00ff7f','#ff0000','#ff7f50']
         fig = plt.figure() 
-        self.change_projection('epsg:4326') #met tout sur la projection 4326
+        self.change_projection('epsg:4326') #we choose projection EPSG:4326
         for j in range(len(self.Files)):
             self.test =  self.SHP[j]
             color=colors[j]
@@ -55,20 +53,15 @@ class Shapefile(object):
                 ax.axis('scaled')
         plt.show()
         
-
-        
-
 ###CODE           
 #2018 data           
-path = "/Users/naomiberda/Desktop/stage_3A/dataset/Shapefiles/2018/"
-Files= ["whole-plot.shp","Yield9Plots_4326.shp","Faidherbia.shp","Shelter.shp",]
+#path = "/Users/naomiberda/Desktop/stage_3A/dataset/Shapefiles/2018/"
+#Files= ["whole-plot.shp","Yield9Plots_4326.shp","Faidherbia.shp","Shelter.shp"]
 
 #2019 data
-##pathFiles=["Plot.shp","Subplots.shp","faidherbias.shp","Others.shp"]
+path="/Users/naomiberda/Desktop/stage_3A/dataset/Shapefiles/2019/"
+Files=["Plot.shp","Subplots.shp","faidherbias.shp","Others.shp"]
 
 
 A=Shapefile(path,Files)
 A.plot_shapefiles()
-
-
-
