@@ -21,17 +21,17 @@ class Shapefile(object):
         Creates a list of Geodataframes, corresponding to the shapefiles input
         
         """
-        self.SHP=[]
+        self.SHP=[] #creates the list of geodataframes
         for k in range (len(self.Files)):
-            test=gpd.read_file(self.path+self.Files[k])
-            self.SHP+=[test]
+            test=gpd.read_file(self.path+self.Files[k]) #creates a frame corresponding to a shapefile
+            self.SHP+=[test] #adds the frame to the list
 
         
     def  change_projection(self,projection):
         """
         Puts all the shapefile in the projection wanted (4326)
         """
-        self.load_shapefile()
+        self.load_shapefile() #loads the shapefiles and creates self.SHP
         idproj = projection[5:] #id of the projection_ Ex:4326
         for k in range(len(self.SHP)):
             file=self.SHP[k]
@@ -40,7 +40,7 @@ class Shapefile(object):
 
     def plot_shapefiles(self):
         """
-        PLot the shapefiles altogether
+        Plot the shapefiles altogether
         """
         self.change_projection('epsg:4326') #we choose projection EPSG:4326
         colors=['#ffff00','#6699cc','#791cf8','#FF69B4','#00ff7f','#ff0000','#ff7f50']
@@ -59,7 +59,8 @@ class Shapefile(object):
                 ax.add_patch(PolygonPatch(poly, fc=colorey, ec=colorey, alpha=0.5, zorder=2 ))
                 ax.axis('scaled')
         plt.show()
-        
+  
+      
 ###CODE           
 #2018 data           
 #path = "/Users/naomiberda/Desktop/stage_3A/dataset/Shapefiles/2018/"
