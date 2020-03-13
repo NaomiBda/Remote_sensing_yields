@@ -14,3 +14,10 @@ You may run this line on Anaconda prompt
 conda install -c conda-forge geopandas rasterio descartes shapely
 ```
 
+##Dataset
+You need : 
+* Rasters of the fields (Drone or satellite images)
+* Shapefiles of the plots
+* Yield mesurements
+
+
