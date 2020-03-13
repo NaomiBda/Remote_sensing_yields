@@ -8,7 +8,6 @@ Created on Thu Mar 12 10:12:01 2020
 import os
 import rasterio as rio
 from rasterio.plot import show
-
 import matplotlib 
 import matplotlib.pyplot as plt
 import lecture_shapefiles as lsh
@@ -58,14 +57,12 @@ class Raster(object):
     def crop_raster(self,path_shapefile,f_shapefile):
         """
         crops the raster with the shapefile input and creates nex rasters, in a new directory
-        """
+t        """
         self.get_shapefile(path_shapefile,f_shapefile)
         currentDir=self.path
         newpath = currentDir+'/cropped_'+f_shapefile[:-4]
         if not os.path.exists(newpath):
             os.makedirs(newpath)
-        
-        
         
 
 path= "/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-09-05/"
@@ -76,17 +73,5 @@ A=Raster(path,File)
 path_sh="/Users/naomiberda/Desktop/stage_3A/dataset/Shapefiles/2019/"
 #A.crop_raster_plot(path_sh,"Subplots.shp")
 A.show_raster()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
