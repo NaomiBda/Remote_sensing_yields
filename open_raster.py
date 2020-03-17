@@ -63,7 +63,7 @@ class Raster(object):
         
     def crop_raster(self,path_shapefile,f_shapefile):
         """
-        crops the raster with the shapefile input and creates nex rasters, in a new directory
+        crops the raster with the shapefile input and creates new rasters, in a new directory
         """
         self.get_shapefile(path_shapefile,f_shapefile)
         currentDir=self.path
