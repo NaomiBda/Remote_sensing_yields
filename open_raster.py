@@ -12,6 +12,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import lecture_shapefiles as lsh
 from descartes import PolygonPatch
+import gdal
 
 
 class Raster(object):
@@ -29,7 +30,13 @@ class Raster(object):
         projection=self.proj
         pass
         
+    def get_profile(self):
+        """
+        prints the profile of the raster
+        """
+        print(self.src.profile)
         
+
     def get_shapefile(self,path_shapefile,f_shapefile):
         """
         creates a shapefile object using lecture_shapefiles
@@ -57,21 +64,20 @@ class Raster(object):
     def crop_raster(self,path_shapefile,f_shapefile):
         """
         crops the raster with the shapefile input and creates nex rasters, in a new directory
-t        """
+        """
         self.get_shapefile(path_shapefile,f_shapefile)
         currentDir=self.path
         newpath = currentDir+'/cropped_'+f_shapefile[:-4]
         if not os.path.exists(newpath):
             os.makedirs(newpath)
-        
+            
+   
 
-path= "/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-09-05/"
-File="multimosaic_RC_19_09_05.tif"
+path= "/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_08_30/"
+File="ortho_2018-08-30_georeferenced.tif"
 
 A=Raster(path,File)
 
-path_sh="/Users/naomiberda/Desktop/stage_3A/dataset/Shapefiles/2019/"
-#A.crop_raster_plot(path_sh,"Subplots.shp")
-A.show_raster()
-
-
+path_sh="/Users/naomiberda/Desktop/stage_3A/dataset/Shapefiles/2018/"
+A.crop_raster_plot(path_sh,"Yield9Plots_4326.shp")
+A#.crop_raster_plot()
