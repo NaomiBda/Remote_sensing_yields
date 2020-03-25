@@ -8,11 +8,11 @@ Created on Thu Mar 12 10:12:01 2020
 import os
 import rasterio as rio
 from rasterio.plot import show
-import matplotlib 
 import matplotlib.pyplot as plt
 import lecture_shapefiles as lsh
-from descartes import PolygonPatch
-import gdal
+from rasterio.mask import mask
+import json
+import clip_raster as cr
 
 
 class Raster(object):
@@ -24,11 +24,14 @@ class Raster(object):
         self.proj=self.src.crs
         
     def show_raster(self):
-        show(self.src )#affiche l'image en taille relle (prend beaucoup de place)
+        nb_bands=self.src.count
+        if nb_bands<=3:
+            show(self.src )#affiche l'image en taille relle (prend beaucoup de place)
+        else:
+            array = self.src.read([4,2,1,5])
+            #show(self.src.read())
+            show(array)
         
-    def match_projection(self,projection):
-        projection=self.proj
-        pass
         
     def get_profile(self):
         """
@@ -42,10 +45,9 @@ class Raster(object):
         creates a shapefile object using lecture_shapefiles
         input: one file
         """
-        
-        Sh=lsh.Shapefile(path_shapefile,f_shapefile)
-        Sh.change_projection('epsg:4326')
-        self.S=Sh.SHP[0] #S is the shapefile object in python
+        self.Sh=lsh.Shapefile(path_shapefile,f_shapefile)
+        self.Sh.change_projection('epsg:4326')
+        self.S=self.Sh.SHP[0] #S is the shapefile object in python
         
         
     def crop_raster_plot(self,path_shapefile,f_shapefile) :
@@ -53,31 +55,26 @@ class Raster(object):
         crops the raster using the shapefile and plots the superposed polygon and raster
         """
         self.get_shapefile(path_shapefile,f_shapefile)
+        fig=plt.figure()
+        self.Sh.plot_shapefiles(fig)
+        self.show_raster()
         
-        features = [feature for feature in self.S['geometry']]
-        show(self.src)
-        ax = plt.gca()
         
-        patches = [PolygonPatch(feature,edgecolor="red",facecolor="none", linewidth=2) for feature in features]
-        ax.add_collection(matplotlib.collections.PatchCollection(patches))
-        
-    def crop_raster(self,path_shapefile,f_shapefile):
+    def crop_raster(self,path_shapefile,f_shapefile,annee):
         """
         crops the raster with the shapefile input and creates new rasters, in a new directory
         """
-        self.get_shapefile(path_shapefile,f_shapefile)
-        currentDir=self.path
-        newpath = currentDir+'/cropped_'+f_shapefile[:-4]
-        if not os.path.exists(newpath):
-            os.makedirs(newpath)
-            
-   
+        inShp=path_shapefile+f_shapefile
+        cr.clip(inShp,self.path,self.File,annee)
 
-path= "/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_08_30/"
-File="ortho_2018-08-30_georeferenced.tif"
 
-A=Raster(path,File)
 
-path_sh="/Users/naomiberda/Desktop/stage_3A/dataset/Shapefiles/2018/"
-A.crop_raster_plot(path_sh,"Yield9Plots_4326.shp")
-A#.crop_raster_plot()
+if __name__=='__main__' :
+    #path= "/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/"
+    #File="RS_multimosaic_2018_10_08.tif"
+    path= "/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-10-17/placettesNIR_2019/"
+    File="2019_10_17_M1B.tif"
+    A=Raster(path,File)
+    path_sh="/Volumes/My Passport/TempNaomi/Donnees/Shapefiles/2019/"
+    #A.crop_raster(path_sh,"Subplots.shp",'2019')
+    A.show_raster()
