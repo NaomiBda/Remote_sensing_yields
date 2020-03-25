@@ -6,12 +6,12 @@ Before running any script, install the following packages :
 * geopandas
 * rasterio
 * descartes
-* shapely
+
 
 You may run this line on Anaconda prompt
 
 ```bash
-conda install -c conda-forge geopandas rasterio descartes shapely
+conda install -c conda-forge geopandas rasterio descartes 
 ```
 
 ## Dataset
