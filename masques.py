@@ -63,8 +63,20 @@ class NDVI(object):
         calculates the normalized NDVI (not considering the soil)
         """
         self.calculate_NDVI(raster)
-        
-        
+        self.ndvi_norm=self.ndvi[:] #copies the ndvi array
+        NDVI_sol=np.nanmin(self.ndvi_norm)
+        NDVI_max=np.nanmax(self.ndvi_norm)
+        NDVI_moyen=0
+        count=0
+        for i in self.ndvi_norm:
+            for item in i:
+                if  item != 'nan':
+                   item=(item-NDVI_sol)/(NDVI_max-NDVI_sol)
+                   NDVI_moyen+=float(item)
+                   count+=1 #on compte le nombre de pixel que l'on considere (pour faire la moyenne)
+                   
+        self.NDVI_moyen=NDVI_moyen/count
+
   
     def show_NDVI(self,raster):
         """
@@ -95,6 +107,8 @@ class NDVI(object):
         
 if __name__=='__main__':
     path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-10-17/placettesNIR_2019/"
-    raster="RS_multimosaic_2018_10_08_3_0.5R.tif"
+    raster="2019_10_17_M1B.tif"
     A=NDVI(path)
-    A.show_NDVI_dir()
+    #A.calculate_NDVI(raster)
+    A.calculate_normalized_NDVI(raster)
+    print(A.NDVI_moyen)
