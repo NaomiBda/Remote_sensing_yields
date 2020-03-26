@@ -27,7 +27,9 @@ import csv
 
 class NDVI(object):
     """
-    loads the NDVI image of each file in a directory
+    calculates the NDVI and loads NDVI images and normalized_NDVI images
+    loads a CSV file with all the normalized NDVI data.
+    NDVI=(NIR-Red)/(NIR+Red)
     """
     def __init__(self,path):
         """
@@ -60,7 +62,8 @@ class NDVI(object):
         self.ndvi = (self.nir-self.red)/(self.nir+self.red)
         #show(self.ndvi)
         
-    def show_NDVI(self,raster):
+    
+    def load_NDVI(self,raster):
         """
         shows and loads the ndvi image in a 'ndvi' new directory
         """
@@ -74,7 +77,7 @@ class NDVI(object):
             dst.write(self.ndvi.astype(rio.float64), 1)
         
         
-        show(self.ndvi)
+        #show(self.ndvi)
         
     def calculate_normalized_NDVI (self,raster) :
         """
@@ -97,9 +100,9 @@ class NDVI(object):
         
         self.NDVI_moyen=NDVI_tot/count
         self.NDVI_total=NDVI_tot
-        show(self.ndvi_norm)
+        #show(self.ndvi_norm)
         
-    def show_normalized_NDVI(self,raster):
+    def load_normalized_NDVI(self,raster):
         """
         shows and loads the ndvi image in a 'ndvi' new directory
         """
@@ -128,26 +131,99 @@ class NDVI(object):
                     writer.writerow({'file_name':file , 'NDVI_mean':str(self.NDVI_moyen) ,'NDVI_total':str(self.NDVI_total)})
 
         
-    def show_NDVI_dir(self):
+    def load_NDVI_dir(self):
         """
         loads all the ndvi images from a directory
         """
         for file in listdir(self.path):
             if '.tif' in file :
-                self.show_NDVI(file)
-    def show_norm_NDVI_dir(self):
+                self.load_NDVI(file)
+    def load_norm_NDVI_dir(self):
         """
         loads all the normalized ndvi images from a directory
         """
         for file in listdir(self.path):
             if '.tif' in file :
-                self.show_normalized_NDVI(file)
+                self.load_normalized_NDVI(file)
+                
+class EVI(object):
+    """
+    EVI=2,5((NIR-Red)/(NIR+6R-7,5B+1))
+    """
+    def __init__(self,path):
+        self.path = path
+    def calculate_EVI(self,raster):
+        R=opr.Raster(self.path,raster)
+        self.src=R.src
+        red = self.src.read(4)
+        self.red=red.astype(float)
+        NIR = self.src.read(5)
+        self.nir=NIR.astype(float)
+        blue=self.src.read(1)
+        self.blue=blue.astype(float)
+        self.profile = self.src.profile
+        self.profile.update(
+            dtype=rio.float64,
+            count=1,
+            compress='lzw')
+        np.seterr(divide='ignore', invalid='ignore')
+        self.evi = np.zeros(red.shape)
+        self.evi = 2.5*((self.nir-self.red)/(self.nir+6*self.red-7.5*self.blue+1))
+        
+        #show(self.evi)
+        
+    def EVI_threshold(self,raster,threshold):
+        """
+        thresold: un float compris entre 0 et 1.5 (le seuil)
+        """
+
+      
+        self.calculate_EVI(raster)
+        (a,b)=np.shape(self.evi)
+        self.evi_tot=0
+        self.evi_threshold=self.evi[:]
+        for i in range(a):
+            for j in range(b):
+                item=self.evi[i,j]
+                if item<=threshold:
+                    self.evi_threshold[i,j]=0
+                    self.evi_tot+=item
+        show(self.evi_threshold)
+      
+        print(self.evi_tot)
+                
+
+    def load_EVI(self,raster):
+        self.calculate_EVI(raster)
+        newpath = self.path+'evi/'
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+
+        with rio.open(newpath+raster[:-4]+'_evi.tif', 'w', **self.profile) as dst:
+            dst.write(self.evi.astype(rio.float64), 1)
+        show(self.evi)
+
+        
+    def load_EVI_dir(self):
+        """
+        loads all the ndvi images from a directory
+        """
+        for file in listdir(self.path):
+            if '.tif' in file :
+                self.load_EVI(file)
+                
+    def write_EVI(self):
+        pass
+    
                 
     
 if __name__=='__main__':
     path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/placettes2018/"
-    raster="2019_10_17_M1B.tif"
-    A=NDVI(path)
-    #A.calculate_NDVI(raster)
-    A.write_norm_NDVI()
+    raster="RS_multimosaic_2018_10_08_3_0.5R.tif"
+    A=EVI(path)
+   # B=NDVI(path)
+    A.load_EVI_dir()
+    #print(np.max(A.evi))
+    #B.show_normalized_NDVI(raster)
+    #A.write_norm_NDVI()
     #print(A.NDVI_moyen)
