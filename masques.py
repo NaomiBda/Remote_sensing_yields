@@ -196,7 +196,7 @@ class EVI(object):
         self.evi = np.zeros(red.shape)
         self.evi = 2.5*((self.nir-self.red)/(self.nir+6*self.red-7.5*self.blue+1))
         
-        #show(self.evi)
+        show(self.evi)
         
     def EVI_threshold(self,raster,threshold):
         """
@@ -217,9 +217,12 @@ class EVI(object):
                 else:
                     self.evi_tot+=item
                     count+=1
-        show(self.evi_threshold)
+        #show(self.evi_threshold)
       
-        self.evi_mean=self.evi_tot/count
+        try :
+            self.evi_mean=self.evi_tot/count
+        except:
+            self.evi_mean=self.evi_tot
                 
 
     def load_EVI(self,raster):
@@ -241,9 +244,14 @@ class EVI(object):
             if '.tif' in file :
                 self.load_EVI(file)
                 
-    def write_EVI(self):
+    def write_EVI(self,year):
         with open(path+'EVI.csv', 'w') as csvfile:
-            fieldnames = ['file_name', 'EVI_mean']+["seuil = "+str(seuils) for seuils in np.arange(0.4,1.1,0.1)]
+            lis=np.arange(0.4,1.1,0.1)
+            if year=='2019':
+                lis=np.arange(0.1,0.6,0.1)
+            
+                
+            fieldnames = ['file_name', 'EVI_mean']+["seuil = "+str(seuils) for seuils in lis]
             writer = csv.DictWriter(csvfile,delimiter=',', fieldnames=fieldnames)
             writer.writeheader()
 
@@ -252,7 +260,7 @@ class EVI(object):
                     self.EVI_threshold(file,0)
                     row={'file_name':file , 'EVI_mean':str(self.evi_mean) }
                     
-                    for seuils in np.arange(0.4,1.1,0.1):
+                    for seuils in lis:
                         self.EVI_threshold(file, seuils)
                         row["seuil = "+str(seuils)]=str(self.evi_mean)
                         
@@ -260,12 +268,12 @@ class EVI(object):
     
                 
 if __name__=='__main__':
-    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/placettes2018/"
-    raster="RS_multimosaic_2018_10_08_3_0.5R.tif"
+    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-10-17/placettes_2019/"
+    raster="2019_10_17_M1B.tif"
     A=EVI(path)
-    B=NDVI(path)
+    #B=NDVI(path)
     #B.write_norm_NDVI()
-    A.write_EVI()
+    A.write_EVI('2019')
     #print(np.max(A.evi))
     #B.show_normalized_NDVI(raster)
     #A.write_norm_NDVI(
