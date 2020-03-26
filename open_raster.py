@@ -28,11 +28,10 @@ class Raster(object):
         if nb_bands<=3:
             show(self.src )#affiche l'image en taille relle (prend beaucoup de place)
         else:
-            array = self.src.read([4,2,1,5])
+            array = self.src.read([4,2,1])
             #show(self.src.read())
             show(array)
-        
-        
+            
     def get_profile(self):
         """
         prints the profile of the raster
@@ -58,6 +57,7 @@ class Raster(object):
         fig=plt.figure()
         self.Sh.plot_shapefiles(fig)
         self.show_raster()
+        pass
         
         
     def crop_raster(self,path_shapefile,f_shapefile,annee):
@@ -68,13 +68,19 @@ class Raster(object):
         cr.clip(inShp,self.path,self.File,annee)
 
 
-
 if __name__=='__main__' :
     #path= "/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/"
     #File="RS_multimosaic_2018_10_08.tif"
-    path= "/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-10-17/placettesNIR_2019/"
-    File="2019_10_17_M1B.tif"
-    A=Raster(path,File)
+    #path= "/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-10-17/"
+    #pathe="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-10-17/placettes_2019/"
+    #File="2019_10_17.tif"
+    #Filed="2019_10_17_M1B_normalized_ndvi.tif"
+    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-09-05/placettes_2019/"
+    raster="multimosaic_RC_19_09_05_M1B.tif"
+    A=Raster(path,raster)
+    #B=Raster(pathe,Filed)
     path_sh="/Volumes/My Passport/TempNaomi/Donnees/Shapefiles/2019/"
-    #A.crop_raster(path_sh,"Subplots.shp",'2019')
+    #A.crop_raster(path_sh,"subplots_copie.shp",'2019')
     A.show_raster()
+    #B.show_raster()
+    

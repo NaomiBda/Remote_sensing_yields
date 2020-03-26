@@ -268,11 +268,11 @@ class EVI(object):
     
                 
 if __name__=='__main__':
-    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-10-17/placettes_2019/"
-    raster="2019_10_17_M1B.tif"
+    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-09-05/placettes_2019/"
+    raster="multimosaic_RC_19_09_05_M1B"
     A=EVI(path)
-    #B=NDVI(path)
-    #B.write_norm_NDVI()
+    B=NDVI(path)
+    B.write_norm_NDVI()
     A.write_EVI('2019')
     #print(np.max(A.evi))
     #B.show_normalized_NDVI(raster)
