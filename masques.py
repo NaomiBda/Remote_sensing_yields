@@ -21,7 +21,8 @@ import numpy as np
 #import subprocess
 import os
 from os import listdir
-from os.path import isfile
+#from os.path import isfile
+import csv
 
 
 class NDVI(object):
@@ -54,30 +55,11 @@ class NDVI(object):
             dtype=rio.float64,
             count=1,
             compress='lzw')
+        np.seterr(divide='ignore', invalid='ignore')
         self.ndvi = np.zeros(red.shape)
         self.ndvi = (self.nir-self.red)/(self.nir+self.red)
-        #self.ndvi = np.where ( check,  (self.nir - self.red ) / ( self.nir + self.red ), -999 )
+        #show(self.ndvi)
         
-    def calculate_normalized_NDVI (self,raster) :
-        """
-        calculates the normalized NDVI (not considering the soil)
-        """
-        self.calculate_NDVI(raster)
-        self.ndvi_norm=self.ndvi[:] #copies the ndvi array
-        NDVI_sol=np.nanmin(self.ndvi_norm)
-        NDVI_max=np.nanmax(self.ndvi_norm)
-        NDVI_moyen=0
-        count=0
-        for i in self.ndvi_norm:
-            for item in i:
-                if  item != 'nan':
-                   item=(item-NDVI_sol)/(NDVI_max-NDVI_sol)
-                   NDVI_moyen+=float(item)
-                   count+=1 #on compte le nombre de pixel que l'on considere (pour faire la moyenne)
-                   
-        self.NDVI_moyen=NDVI_moyen/count
-
-  
     def show_NDVI(self,raster):
         """
         shows and loads the ndvi image in a 'ndvi' new directory
@@ -94,6 +76,58 @@ class NDVI(object):
         
         show(self.ndvi)
         
+    def calculate_normalized_NDVI (self,raster) :
+        """
+        calculates the normalized NDVI (not considering the soil)
+        """
+        self.calculate_NDVI(raster)
+        self.ndvi_norm=self.ndvi[:] #copies the ndvi array
+        (a,b)=np.shape(self.ndvi_norm)
+        NDVI_sol=np.nanmin(self.ndvi_norm)
+        NDVI_max=np.nanmax(self.ndvi_norm)
+        NDVI_tot=0
+        count=0
+        for i in range(a):
+            for j in range(b):
+                item=self.ndvi_norm[i,j]
+                if  np.isnan(item)==False:
+                   self.ndvi_norm[i,j]=(item-NDVI_sol)/(NDVI_max-NDVI_sol)
+                   NDVI_tot+=float(self.ndvi_norm[i,j])
+                   count+=1 #on compte le nombre de pixel que l'on considere (pour faire la moyenne)
+        
+        self.NDVI_moyen=NDVI_tot/count
+        self.NDVI_total=NDVI_tot
+        show(self.ndvi_norm)
+        
+    def show_normalized_NDVI(self,raster):
+        """
+        shows and loads the ndvi image in a 'ndvi' new directory
+        """
+        newpath = self.path+'normalized_ndvi/'
+        
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+            
+        self.calculate_normalized_NDVI(raster)
+        with rio.open(newpath+raster[:-4]+'_normalized_ndvi.tif', 'w', **self.profile) as dst:
+            dst.write(self.ndvi_norm.astype(rio.float64), 1)
+            
+    def write_norm_NDVI(self):
+        """
+        input: the directory containing the raster files
+        output : a csv file with the normalized ndvi values
+        """
+        with open(path+'NDVI.csv', 'w') as csvfile:
+            fieldnames = ['file_name', 'NDVI_mean','NDVI_total']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+   
+            for file in listdir(self.path):
+                if '.tif' in file:
+                    self.calculate_normalized_NDVI(file)
+                    writer.writerow({'file_name':file , 'NDVI_mean':str(self.NDVI_moyen) ,'NDVI_total':str(self.NDVI_total)})
+
+        
     def show_NDVI_dir(self):
         """
         loads all the ndvi images from a directory
@@ -101,14 +135,19 @@ class NDVI(object):
         for file in listdir(self.path):
             if '.tif' in file :
                 self.show_NDVI(file)
+    def show_norm_NDVI_dir(self):
+        """
+        loads all the normalized ndvi images from a directory
+        """
+        for file in listdir(self.path):
+            if '.tif' in file :
+                self.show_normalized_NDVI(file)
                 
     
-        
-        
 if __name__=='__main__':
-    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-10-17/placettesNIR_2019/"
+    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/placettes2018/"
     raster="2019_10_17_M1B.tif"
     A=NDVI(path)
     #A.calculate_NDVI(raster)
-    A.calculate_normalized_NDVI(raster)
-    print(A.NDVI_moyen)
+    A.write_norm_NDVI()
+    #print(A.NDVI_moyen)
