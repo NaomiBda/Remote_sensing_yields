@@ -23,6 +23,7 @@ import os
 from os import listdir
 #from os.path import isfile
 import csv
+import pandas as pd
 
 
 class NDVI(object):
@@ -36,7 +37,6 @@ class NDVI(object):
         input: path where is located the raster images
         """
         self.path=path
-        
 
     def calculate_NDVI(self,raster):
         """
@@ -102,6 +102,26 @@ class NDVI(object):
         self.NDVI_total=NDVI_tot
         #show(self.ndvi_norm)
         
+    def thresholded_NDVI(self,raster,threshold) : 
+        self.calculate_normalized_NDVI(raster)
+        (a,b)=np.shape(self.ndvi_norm)
+        self.ndvi_thresholded=self.ndvi_norm[:]
+        count=0
+        self.mean_thresholded=0
+        for i in range(a):
+            for j in range(b):
+                item=self.ndvi_norm[i,j]
+                if np.isnan(item)==True or item<=threshold:
+                    self.ndvi_thresholded[i,j]=0
+                else:
+                    self.mean_thresholded+=item
+                    count+=1
+        self.mean_thresholded=self.mean_thresholded/count
+        
+        #show(self.ndvi_thresholded)
+        #print(self.mean_thresholded)
+                
+        
     def load_normalized_NDVI(self,raster):
         """
         shows and loads the ndvi image in a 'ndvi' new directory
@@ -120,16 +140,22 @@ class NDVI(object):
         input: the directory containing the raster files
         output : a csv file with the normalized ndvi values
         """
-        with open(path+'NDVI.csv', 'w') as csvfile:
-            fieldnames = ['file_name', 'NDVI_mean','NDVI_total']
+        with open(path+'NDVI.csv', 'w',newline='') as csvfile:
+            fieldnames = ['file_name', 'NDVI_mean','NDVI_total']+["seuil = "+str(seuils) for seuils in np.arange(0.2,1,0.2)]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
-   
+
             for file in listdir(self.path):
                 if '.tif' in file:
                     self.calculate_normalized_NDVI(file)
-                    writer.writerow({'file_name':file , 'NDVI_mean':str(self.NDVI_moyen) ,'NDVI_total':str(self.NDVI_total)})
-
+                    row={'file_name':file , 'NDVI_mean':str(self.NDVI_moyen) ,'NDVI_total':str(self.NDVI_total)}
+                    
+                    for seuils in np.arange(0.2,1,0.2):
+                        self.thresholded_NDVI(file, seuils)
+                        row["seuil = "+str(seuils)]=str(self.mean_thresholded)
+                        
+                    writer.writerow(row)
+                        
         
     def load_NDVI_dir(self):
         """
@@ -182,15 +208,18 @@ class EVI(object):
         (a,b)=np.shape(self.evi)
         self.evi_tot=0
         self.evi_threshold=self.evi[:]
+        count=0
         for i in range(a):
             for j in range(b):
                 item=self.evi[i,j]
                 if item<=threshold:
                     self.evi_threshold[i,j]=0
+                else:
                     self.evi_tot+=item
+                    count+=1
         show(self.evi_threshold)
       
-        print(self.evi_tot)
+        self.evi_mean=self.evi_tot/count
                 
 
     def load_EVI(self,raster):
@@ -213,17 +242,30 @@ class EVI(object):
                 self.load_EVI(file)
                 
     def write_EVI(self):
-        pass
+        with open(path+'EVI.csv', 'w') as csvfile:
+            fieldnames = ['file_name', 'EVI_mean']+["seuil = "+str(seuils) for seuils in np.arange(0.4,1.1,0.1)]
+            writer = csv.DictWriter(csvfile,delimiter=',', fieldnames=fieldnames)
+            writer.writeheader()
+
+            for file in listdir(self.path):
+                if '.tif' in file:
+                    self.EVI_threshold(file,0)
+                    row={'file_name':file , 'EVI_mean':str(self.evi_mean) }
+                    
+                    for seuils in np.arange(0.4,1.1,0.1):
+                        self.EVI_threshold(file, seuils)
+                        row["seuil = "+str(seuils)]=str(self.evi_mean)
+                        
+                    writer.writerow(row)
     
                 
-    
 if __name__=='__main__':
     path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/placettes2018/"
     raster="RS_multimosaic_2018_10_08_3_0.5R.tif"
     A=EVI(path)
-   # B=NDVI(path)
-    A.load_EVI_dir()
+    B=NDVI(path)
+    #B.write_norm_NDVI()
+    A.write_EVI()
     #print(np.max(A.evi))
     #B.show_normalized_NDVI(raster)
-    #A.write_norm_NDVI()
-    #print(A.NDVI_moyen)
+    #A.write_norm_NDVI(
