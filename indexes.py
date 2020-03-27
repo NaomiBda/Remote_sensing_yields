@@ -98,8 +98,7 @@ class Masks(object):
         except:
             self.NDVI_moyen=self.NDVI_tot
         
-        
-      
+ 
 
     def calculate_EVI(self,threshold=0):
         """
@@ -148,14 +147,17 @@ class fonctions_masks(object):
         write_csv : write all the indexes values for all the files in a csv file
     """
     def __init__(self,path):
-        
         self.path=path
-        
-        
-    
+
     def chose_mask(self,raster,mask='NDVI',threshold=0):
         """
-        
+        input:
+            mask : str : can take the value 'NDVI','EVI','NDVI_norm' (NDVI is default)
+            threshold : float: choose from 0 to 1 (default is O = no threshold)
+        Uses the class Mask to extract informations:
+            self.newimage : new raster
+            self.value: calculated value
+            self.value_tot= calculated total value
         """
         A=Masks(self.path,raster)
         if mask == 'NDVI':
@@ -176,6 +178,7 @@ class fonctions_masks(object):
         
     def show_mask(self,raster,mask='NDVI',threshold=0):
         """
+        display the mask
 
         """
         self.chose_mask(raster,mask,threshold)
@@ -183,7 +186,12 @@ class fonctions_masks(object):
 
     def load_raster(self,raster,mask='NDVI',threshold=0):
         """
-    
+        input:
+            raster adress
+            mask : str : 'NDVI','NDVI_norm' or EVI 
+            threshold: float: (default is O)
+        Output: 
+            creates a directory and load the new masked raster
 
         """
             
@@ -202,6 +210,7 @@ class fonctions_masks(object):
             
     def load_files(self,mask='NDVI',threshold=0):
         """
+        loads all the file masked in a directory
 
         """
         for file in listdir(self.path):
@@ -209,7 +218,9 @@ class fonctions_masks(object):
                 self.load_raster(file,mask,threshold)
     def write_csv(self,mask='NDVI_norm'):
         """
-        
+        input:
+            mask : str :'NDVI_norm' or 'EVI'
+        Output: a CSV file countaning the index values for all the thresholds 
 
         """
         if mask=='NDVI_norm':
