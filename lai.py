@@ -33,6 +33,7 @@ class LAI(object):
                         self.lai[i,j]=-1
                     else:
                         pixels_LAI+=1
+                        self.lai[i,j]=1
    
         self.LAI=pixels_LAI/pixels_tot
         
@@ -66,20 +67,10 @@ class LAI(object):
 
         
 if __name__=="__main__":
-    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-09-05/placettes_2019/"
+    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/placettes2018/"
     raster="multimosaic_RC_19_09_05_M1B.tif"
     A=LAI(path)
-    #A.calculate_LAI(raster,0.5)
     A.write_LAI()
+    #A.show_LAI(raster,0.5)
     #print(A.LAI)
     
-
- 
-        
-        
-        
-        
-        
-        
-        
-        
