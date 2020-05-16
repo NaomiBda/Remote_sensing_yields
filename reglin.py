@@ -46,12 +46,16 @@ def regression_PLS(X,Y):
     Y_pred=pls2.predict(X)
     
   
-def show_regression(X,Y):
+def show_regression(X,Y,Xvalue,Yvalue):
     """
+    Xvalue and Yvalue are the labels
     """
     (a,b,r2,Y_pred,rmse,relat_rmse)=regression_lineaire(X,Y)
-    plt.scatter(X,Y)
-    plt.plot(X,Y_pred,color='red')
+    plt.scatter(Y_pred,Y)
+    plt.plot(Y_pred,Y_pred,color='red')
+    plt.title("r^2 = "+str(r2)[:5])
+    plt.xlabel('Valurs prédites avec l\'indice ' +str(Xvalue))
+    plt.ylabel(Yvalue)
     plt.show()
     
     
@@ -125,7 +129,8 @@ class Datas(object):
     def show_reg(self,Xvalue,Yvalue):
         
         self.regression(Xvalue,Yvalue)
-        show_regression(self.X,self.Y)
+        show_regression(self.X,self.Y,Xvalue,Yvalue)
+        
         
         
     def outlirs(self,Xvalue,Yvalue):
@@ -220,8 +225,8 @@ class Datas_glob(object):
         if not os.path.exists(newpath):
             os.makedirs(newpath)
             
-        with open(newpath+'Linear regression '+Yvalue+'.csv', 'w',newline='') as csvfile:
-            fieldnames = ['indices','year','Optimal threshold','r2 optimal value','Rrmse optimal value','coeff a','coeff b']
+        with open(newpath+'Results '+Yvalue+'.csv', 'w',newline='') as csvfile:
+            fieldnames = ['indices','year','Optimal threshold r2','Optimal threshold rmse','r2 optimal value','Rrmse optimal value','coeff a','coeff b']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             
@@ -236,10 +241,10 @@ class Datas_glob(object):
                 Data2019.optimal_value(Yvalue, label_values)
                 
                 
-                row1={'indices':str(file),'year':'2018','Optimal threshold':str(Data2018.value_max_r2) ,'r2 optimal value':str(Data2018.r2_max) ,'Rrmse optimal value':str(Data2018.rmsemin),'coeff a':str(Data2018.coeff_max[0]) ,'coeff b':str(Data2018.coeff_max[1]) }
+                row1={'indices':str(file),'year':'2018','Optimal threshold r2':str(Data2018.value_max_r2),'Optimal threshold rmse':str(Data2018.value_max_rmse) ,'r2 optimal value':str(Data2018.r2_max) ,'Rrmse optimal value':str(Data2018.rmsemin),'coeff a':str(Data2018.coeff_max[0]) ,'coeff b':str(Data2018.coeff_max[1]) }
                
                 writer.writerow(row1)
-                row2={'indices':str(file),'year':'2019','Optimal threshold':str(Data2019.value_max_r2) ,'r2 optimal value':str(Data2019.r2_max) ,'Rrmse optimal value':str(Data2019.rmsemin),'coeff a':str(Data2019.coeff_max[0]) ,'coeff b':str(Data2019.coeff_max[1]) }
+                row2={'indices':str(file),'year':'2019','Optimal threshold r2':str(Data2019.value_max_r2),'Optimal threshold rmse':str(Data2019.value_max_rmse) ,'r2 optimal value':str(Data2019.r2_max) ,'Rrmse optimal value':str(Data2019.rmsemin),'coeff a':str(Data2019.coeff_max[0]) ,'coeff b':str(Data2019.coeff_max[1]) }
                 
                 writer.writerow(row2)
  
@@ -279,26 +284,22 @@ if __name__=='__main__':
     path_indexes_2019="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-09-05/placettes_2019/CSV_files/"
     path_terrain_2018="/Volumes/My Passport/TempNaomi/Donnees/Terrain/2018/donnees_terrain.csv"
     path_terrain_2019="/Volumes/My Passport/TempNaomi/Donnees/Terrain/2019/donnees_terrain.csv"
-    Yvalues='MS_Graines_Placette_(g_m_2)'
+    path_LAI_2018="/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/placettes2018/bash indices/"
+    
+    Yvalue='MS_Graines_Placette_(g_m_2)'
+    Xvalue ='NDVI_norm_mean'
+   
     files=['NDVI','NDVI_norm','EVI','GNDVI','EXG','MSAVI']
-    file='NDVI.csv'
+    file='NDVI_norm.csv'
     label_values=['file name']
-   # A=Datas(path_indexes_2018,file,path_terrain_2018)
-    
-    #print(A.dataset_terrain[Yvalues])
-    #print(A.dataset_index['seuil = 0.4'])
-    #A.show_reg('seuil = 0.4',Yvalues)
    
-   
-    #Xvalue_NDVI='MS_Graines_Placette_(g_m_2)'
-    #A.regression_glob(Xvalues,['file_name','NDVI_norm_total'])
-    #A.optimal_value(Xvalues, ['file_name','EVI_total'])
-    #print(A.value_max_rmse,A.value_max_r2,A.r2_max,A.rmsemin)
     path_final='/Volumes/My Passport/TempNaomi/Donnees/Drone/'
-    B=Datas_glob(path_indexes_2018,path_indexes_2019,path_terrain_2018,path_terrain_2019,files)
-    B.write_csv_glob(path_final,Yvalues, label_values)
+    #B=Datas_glob(path_indexes_2018,path_indexes_2019,path_terrain_2018,path_terrain_2019,files)
+    #B.write_csv_glob(path_final,Yvalues, label_values)
+    A=Datas(path_indexes_2019, file, path_terrain_2019)
+    #A.optimal_value(Yvalues,label_values)
+    A.show_reg(Xvalue, Yvalue)
+    #print(A.r2_max)
     
-    
-    
-    
+
    
