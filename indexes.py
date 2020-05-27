@@ -25,7 +25,7 @@ from os import listdir
 import csv
 import matplotlib.pyplot as plt
 from pylab import sqrt
-import gdal
+
 
 
 class Masks(object):
@@ -262,7 +262,7 @@ class fonctions_masks(object):
 
         """
         if mask=='LAI':
-            self.calculate_LAI(raster,mask_LAI,threshold)
+            self.calculate_LAI(raster,mask_LAI,threshold=-1)
         else:
             self.thresholded(raster,mask,threshold)
             
@@ -329,7 +329,7 @@ class fonctions_masks(object):
             li=np.arange(2,10,2)/10
             
         elif mask =='EVI':
-            li=np.arange(4,11,1)/10
+            li=np.arange(3,11,1)/10
         elif mask=='GNDVI':
             li=np.arange(30,55,5)/100
         elif mask=='NDVI':
@@ -338,18 +338,24 @@ class fonctions_masks(object):
             li=np.arange(0,10,2)/10
         elif mask=='MSAVI':
             li=np.arange(2,10,2)/10
+            
+        newpath = self.path+'CSV_files/'
+        
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
 
                     
-        with open(path+str(mask)+'.csv', 'w',newline='') as csvfile:
-            fieldnames = ['file_name', str(mask)+'_mean',str(mask)+'_total']+["seuil = "+str(threshold) for threshold in li]
+        with open(newpath+str(mask)+'.csv', 'w',newline='') as csvfile:
+            fieldnames = ['file name', str(mask)+'_mean',str(mask)+'_total']+["seuil = "+str(threshold) for threshold in li]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
 
             for file in listdir(self.path):
-                self.thresholded(file,mask)
+                
                 if '.tif' in file:
+                    self.thresholded(file,mask)
                     #self.calculate_normalized_NDVI(file)
-                    row={'file_name':file , str(mask)+'_mean':str(self.value),str(mask)+'_total':str(self.value_tot) }
+                    row={'file name':file , str(mask)+'_mean':str(self.value),str(mask)+'_total':str(self.value_tot) }
                     
                     for threshold in li:
                         self.thresholded(file,mask,threshold)
@@ -359,44 +365,16 @@ class fonctions_masks(object):
                     writer.writerow(row)
                     
     def write_csv_glob(self):
-        
         list_masks=['NDVI_norm','EVI','NDVI','GNDVI','EXG','MSAVI']
-        list_li=[np.arange(2,10,2)/10,np.arange(4,11,1)/10,np.arange(0,10,2)/10,np.arange(30,55,5)/100,np.arange(0,10,2)/10,np.arange(2,10,2)/10]
-        
-        newpath = self.path+'CSV_files/'
-        
-        if not os.path.exists(newpath):
-            os.makedirs(newpath)
-           
-        for k in range(len(list_masks)):
-            mask=list_masks[k]
-            li=list_li[k]
-            with open(newpath+str(mask)+'.csv', 'w',newline='') as csvfile:
-                fieldnames = ['File name', str(mask)+' mean',str(mask)+' total']+["seuil = "+str(threshold) for threshold in li]
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-    
-                for file in listdir(self.path):
-                    self.thresholded(file,mask)
-                    if '.tif' in file: 
-                        #self.calculate_normalized_NDVI(file)
-                        row={'File name':file , str(mask)+' mean':str(self.value),str(mask)+' total':str(self.value_tot) }
-                        
-                        for threshold in li:
-                            self.thresholded(file,mask,threshold)
-                            
-                            row["seuil = "+str(threshold)]=str(self.value)
-                            
-                        writer.writerow(row)
+        for mask in list_masks:
+            self.write_csv(mask)
 
 
 if __name__=='__main__':
-    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-09-05/placettes_2019/"
-    raster="multimosaic_RC_19_09_05_M1B.tif"
-    B=fonctions_masks(path)
-    B.write_csv('NDVI_norm')
-    #show(B.newimage)
-    #B.thresholded(raster,'MSAVI',0)
-    #B.show_mask(raster,'MSAVI',-1)
-    #print(B.value_min)
-    
+    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/plot 2018/"
+    raster="RS_multimosaic_2018_10_08plot.tif"
+    #B=fonctions_masks(path)
+   # B.show_mask(raster,'NDVI_norm')
+  
+    #B.write_csv_glob()
+       

@@ -10,9 +10,10 @@ Created on Fri Apr  3 15:19:41 2020
 import numpy as np
 import pandas as pd
 from sklearn import linear_model
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.metrics import r2_score, mean_squared_error
+
 import matplotlib.pyplot as plt
 #import scipy.stats
 import csv
@@ -45,6 +46,18 @@ def regression_PLS(X,Y):
     pls2.fit(X, Y)
     Y_pred=pls2.predict(X)
     
+def regression_ridge(X,Y):
+    n_alphas = 200
+    alphas = np.logspace(-5, 5, n_alphas)
+    ridge = linear_model.Ridge()
+
+    coefs = []
+    errors = []
+    for a in alphas:
+        ridge.set_params(alpha=a)
+        ridge.fit(X_train, y_train)
+        coefs.append(ridge.coef_)
+        errors.append([baseline_error, np.mean((ridge.predict(X_test) - y_test) ** 2)])
   
 def show_regression(X,Y,Xvalue,Yvalue):
     """

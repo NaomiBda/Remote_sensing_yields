@@ -75,12 +75,12 @@ if __name__=='__main__' :
     #pathe="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-10-17/placettes_2019/"
     #File="2019_10_17.tif"
     #Filed="2019_10_17_M1B_normalized_ndvi.tif"
-    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-09-05/placettes_2019/"
-    raster="multimosaic_RC_19_09_05_M1B.tif"
+    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-10-17/placettes_copie2019/"
+    raster="2019_10_17_3cm_M1B.tif"
     A=Raster(path,raster)
     #B=Raster(pathe,Filed)
-    path_sh="/Volumes/My Passport/TempNaomi/Donnees/Shapefiles/2019/"
-    #A.crop_raster(path_sh,"subplots_copie.shp",'2019')
+   # path_sh="/Volumes/My Passport/TempNaomi/Donnees/Shapefiles/2019/"
+   # A.crop_raster(path_sh,"sublots_cp.shp",'2019')
+    
     A.show_raster()
     #B.show_raster()
-    
