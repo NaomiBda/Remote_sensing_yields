@@ -39,16 +39,25 @@ class Masks(object):
         self.path=path
         self.raster=raster
         
-    def calculate_mask(self):
+    def calculate_mask(self,image='drone'):
         """
         generates geodata frame of the raster and extract the bands. 
         """
         R=opr.Raster(self.path,self.raster)
         self.src=R.src
-        red = self.src.read(4)
-        NIR = self.src.read(5)
-        blue=self.src.read(1)
-        green=self.src.read(2)
+        if image=='drone':
+            red = self.src.read(4)
+            NIR = self.src.read(5)
+            blue=self.src.read(1)
+            green=self.src.read(2)
+        elif image=='satellite':
+            red = self.src.read(3)
+            NIR = self.src.read(4)
+            blue=self.src.read(1)
+            green=self.src.read(2)
+            
+        else:
+            print("invalid image type")
         self.red=red.astype(float)
         self.nir=NIR.astype(float)
         self.blue=blue.astype(float)
@@ -60,20 +69,20 @@ class Masks(object):
             count=1,
             compress='lzw')
   
-    def calculate_NDVI(self):
+    def calculate_NDVI(self,image='drone'):
         """
         
         returns self.ndvi : an array with all ndvi values
         NDVI=(nir-red)/(nir+red)
 
         """
-        self.calculate_mask()
+        self.calculate_mask(image)
         np.seterr(divide='ignore', invalid='ignore')
         self.ndvi = np.zeros(self.red.shape)
         self.ndvi = (self.nir-self.red)/(self.nir+self.red)
         
         
-    def calculate_norm_NDVI(self):
+    def calculate_norm_NDVI(self,image='drone'):
         """
         Calculates the normalized ndvi = ndvi_norm=(ndvi-ndvi_sol)/(ndvi_max-ndvi_sol)
         generates a ndvi_norm raster : (self.ndvi_norm)
@@ -81,7 +90,7 @@ class Masks(object):
         returns also the total of all ndvi_norm values = self.NDVI_tot
 
         """
-        self.calculate_NDVI()
+        self.calculate_NDVI(image)
         self.ndvi_norm=self.ndvi[:] #copies the ndvi array
         (a,b)=np.shape(self.ndvi_norm)
         NDVI_sol=np.nanmin(self.ndvi_norm)
@@ -96,7 +105,7 @@ class Masks(object):
 
             
             
-    def calculate_GNDVI(self):
+    def calculate_GNDVI(self,image='drone'):
         """
         returns self.gndvi: array containing  the gndvi index : 
             GNDVI=(nir-green)/(nir+green)
@@ -105,13 +114,13 @@ class Masks(object):
             
 
         """
-        self.calculate_mask()
+        self.calculate_mask(image)
         np.seterr(divide='ignore', invalid='ignore')
         self.gndvi = np.zeros(self.red.shape)
         self.gndvi = (self.nir-self.green)/(self.nir+self.green)
        
 
-    def calculate_EVI(self):
+    def calculate_EVI(self,image='drone'):
         """
         Calculates the Enhanced Vegetation Index : 
             EVI=2.5*((nir-red)/(nir+6*red-7.5*blue+1))
@@ -123,27 +132,27 @@ class Masks(object):
             
         
         """
-        self.calculate_mask()
+        self.calculate_mask(image)
         np.seterr(divide='ignore', invalid='ignore')
         self.evi = np.zeros(self.red.shape)
         self.evi = 2.5*((self.nir-self.red)/(self.nir+6*self.red-7.5*self.blue+1))
        
             
-    def calculate_excessgreen(self):
+    def calculate_excessgreen(self,image='drone'):
         """
         Exg= 2G-R-B
         """
-        self.calculate_mask()
+        self.calculate_mask(image)
         np.seterr(divide='ignore', invalid='ignore')
         self.Exg= np.zeros(self.red.shape)
         self.Exg=2*self.green-self.red-self.blue
         
-    def calculate_MSAVI(self):
+    def calculate_MSAVI(self,image='drone'):
         """
         MSAVI=(2*NIR+1-sqrt((2*NIR+1)^2-8*(NIR+RED)))/2
 
         """
-        self.calculate_mask()
+        self.calculate_mask(image)
         np.seterr(divide='ignore', invalid='ignore')
         self.msavi=np.zeros(self.red.shape)
         self.msavi=(2*self.nir+1-sqrt((2*self.nir+1)**2-8*(self.nir-self.red)))/2
@@ -161,46 +170,46 @@ class fonctions_masks(object):
     def __init__(self,path):
         self.path=path
         
-    def chose_mask(self,raster,mask):
+    def chose_mask(self,raster,mask,image='drone'):
         """
         CHOSES THE MASK, using the class 'mask'
         """
         A=Masks(self.path,raster)
         if mask=='NDVI':
-            A.calculate_NDVI()
+            A.calculate_NDVI(image)
             self.newimage=A.ndvi[:]
             #self.value_min=-1
         elif mask=='EXG':
-            A.calculate_excessgreen()
+            A.calculate_excessgreen(image)
             self.newimage=A.Exg[:]
             #self.value_min=-1
         elif mask=='NDVI_norm':
-            A.calculate_norm_NDVI()
+            A.calculate_norm_NDVI(image)
             self.newimage=A.ndvi_norm[:]
             #self.value_min=0
         elif mask =='EVI':
-            A.calculate_EVI()
+            A.calculate_EVI(image)
             self.newimage=A.evi[:]
             #self.value_min=0
         elif mask =='GNDVI':
-            A.calculate_GNDVI()
+            A.calculate_GNDVI(image)
             self.newimage=A.gndvi[:]
             #self.value_min=-1
         elif mask=='MSAVI':
-            A.calculate_MSAVI()
+            A.calculate_MSAVI(image)
             self.newimage=A.msavi
             #self.value_min=-1
         self.value_min=np.nanmin(self.newimage)
         self.profile=A.profile
            
-    def thresholded(self,raster,mask,threshold=-1):
+    def thresholded(self,raster,mask,threshold=-1,image='drone'):
         """
         
         apply a shreshold on a mask
         input: 'NDVI','norm_NDVI','EVI','GNDVI','EXG','MSAVI'
         self.chose_mask(raster,mask,threshold)
         """
-        self.chose_mask(raster, mask)
+        self.chose_mask(raster, mask,image)
         (a,b)=np.shape(self.newimage)
         
         #threshold=self.value_min
@@ -219,12 +228,12 @@ class fonctions_masks(object):
         except:
             self.value=self.value_tot
 
-    def calculate_LAI(self,raster,mask='NDVI',threshold=-1):
+    def calculate_LAI(self,raster,mask='NDVI',image='drone',threshold=-1):
         """
         mask : str : 'NDVI','EVI','GNDVI' etc
         calculates the leaf area index using indexes and thresholds
         """
-        self.chose_mask(raster,mask)
+        self.chose_mask(raster,mask,image)
         #show(self.newimage)
         (a,b)=np.shape(self.newimage)
         
@@ -251,7 +260,7 @@ class fonctions_masks(object):
         self.value=self.LAI
         self.newimage=self.lai
     
-    def show_mask(self,raster,mask='NDVI',threshold=-1,mask_LAI='NDVI'):
+    def show_mask(self,raster,mask='NDVI',threshold=-1,image='drone',mask_LAI='NDVI'):
         """
         display the mask
         input:
@@ -262,13 +271,13 @@ class fonctions_masks(object):
 
         """
         if mask=='LAI':
-            self.calculate_LAI(raster,mask_LAI,threshold=-1)
+            self.calculate_LAI(raster,mask_LAI,image,threshold=-1)
         else:
-            self.thresholded(raster,mask,threshold)
+            self.thresholded(raster,mask,threshold,image)
             
         show(self.newimage)
 
-    def load_raster(self,raster,mask='NDVI',threshold=0):
+    def load_raster(self,raster,mask='NDVI',threshold=0,image='drone'):
         """
         input:
             raster adress
@@ -280,7 +289,7 @@ class fonctions_masks(object):
         """
             
         try:
-            self.thresholded(raster,mask,threshold)
+            self.thresholded(raster,mask,threshold,image)
                
             newpath = self.path+str(mask)+'_'+str(threshold)+'/'
         
@@ -292,14 +301,14 @@ class fonctions_masks(object):
             
             print('No valid mask : please type either NDVI,EVI or NDVI_norm')
             
-    def load_files(self,mask='NDVI',threshold=0):
+    def load_files(self,mask='NDVI',threshold=0,image='drone'):
         """
         loads all the file masked in a directory
 
         """
         for file in listdir(self.path):
             if '.tif' in file :
-                self.load_raster(file,mask,threshold)
+                self.load_raster(file,mask,threshold,image)
                 
     def histo_values(self,raster,mask='NDVI'):
         """
@@ -318,7 +327,7 @@ class fonctions_masks(object):
         
  
         
-    def write_csv(self,mask='NDVI_norm'):
+    def write_csv(self,mask='NDVI_norm',image='drone'):
         """
         input:
             mask : str :'NDVI_norm' or 'EVI' or'GNDVI'
@@ -358,23 +367,23 @@ class fonctions_masks(object):
                     row={'file name':file , str(mask)+'_mean':str(self.value),str(mask)+'_total':str(self.value_tot) }
                     
                     for threshold in li:
-                        self.thresholded(file,mask,threshold)
+                        self.thresholded(file,mask,threshold,image)
                         
                         row["seuil = "+str(threshold)]=str(self.value)
                         
                     writer.writerow(row)
                     
-    def write_csv_glob(self):
+    def write_csv_glob(self,image='drone'):
         list_masks=['NDVI_norm','EVI','NDVI','GNDVI','EXG','MSAVI']
         for mask in list_masks:
-            self.write_csv(mask)
+            self.write_csv(mask,image)
 
 
 if __name__=='__main__':
-    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/plot 2018/"
-    raster="RS_multimosaic_2018_10_08plot.tif"
-    #B=fonctions_masks(path)
-   # B.show_mask(raster,'NDVI_norm')
+    path="/Volumes/My Passport 1/TempNaomi/Donnees/Planet/plot 2018/"
+    raster="Planet_2018_10_28_MOS_RESIZEplot.tif"
+    B=fonctions_masks(path)
+    B.show_mask(raster,'NDVI_norm',threshold=0,image='satellite')
   
     #B.write_csv_glob()
        
