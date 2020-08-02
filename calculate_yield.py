@@ -31,13 +31,12 @@ def calculate_yield(path,raster,mask,threshold,path_result_file,index):
     return(yieldvalue)
 
 if __name__=='__main__':
-    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2018/Niakhar/2018_10_08/plot 2018/"
-    raster="RS_multimosaic_2018_10_08plot.tif"
-    path_result_file = "/Volumes/My Passport/TempNaomi/Donnees/Drone/Global optimal indexes/septembre2019/Results MS_Pailles_Placette_(g_m_2).csv"
+    path="/Volumes/My Passport/TempNaomi/Donnees/Drone/2019/Niakhar/19-09-05/plot 2019/"
+    raster="multimosaic_RC_19_09_05plot.tif"
+    path_result_file = "/Volumes/My Passport/TempNaomi/Donnees/Drone/Global optimal indexes/SANS M3B/septembre2019/Results MS_Graines_Placette_(g_m_2).csv"
     mask='NDVI_norm'
     threshold=0
-    index=2
+    index=3
     print(calculate_yield(path,raster,mask,threshold,path_result_file,index))
-    
     
     
