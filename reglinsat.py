@@ -44,32 +44,11 @@ def show_regression(X,Y,Xvalue,Yvalue):
     plt.scatter(Y_pred,Y)
     plt.plot(Y_pred,Y_pred,color='red')
     plt.title("r^2 = "+str(r2)[:5])
-    plt.xlabel('Valurs prédites avec l\'indice ' +str(Xvalue))
+    plt.xlabel('Valeurs prédites avec l\'indice ' +str(Xvalue))
     plt.ylabel(Yvalue)
     plt.show()
  
-# def regression_PLS(X,Y):
-#     """
-#     X: matrice des descripteurs (valeurs des indices)
-#     Y: variable attendue (rdt)
 
-#     """
-#     pls2=PLSRegression(n_components=2)
-#     pls2.fit(X, Y)
-#     Y_pred=pls2.predict(X)
-    
-# def regression_ridge(X,Y):
-#     n_alphas = 200
-#     alphas = np.logspace(-5, 5, n_alphas)
-#     ridge = linear_model.Ridge()
-
-#     coefs = []
-#     errors = []
-#     for a in alphas:
-#         ridge.set_params(alpha=a)
-#         ridge.fit(X_train, y_train)
-#         coefs.append(ridge.coef_)
-#         errors.append([baseline_error, np.mean((ridge.predict(X_test) - y_test) ** 2)])
   
 def show_regression(X,Y,Xvalue,Yvalue):
     """
@@ -79,7 +58,7 @@ def show_regression(X,Y,Xvalue,Yvalue):
     plt.scatter(Y_pred,Y)
     plt.plot(Y_pred,Y_pred,color='red')
     plt.title("r^2 = "+str(r2)[:5])
-    plt.xlabel('Valurs prédites avec l\'indice ' +str(Xvalue))
+    plt.xlabel('Valeurs prédites avec l\'indice ' +str(Xvalue))
     plt.ylabel(Yvalue)
     plt.show()
     
@@ -116,6 +95,36 @@ class Data(object):
            
        show_regression(X,Y,Xvalue,Yvalue)
        
+    def reglin_multiple(self,Xvalues,Yvalue):
+        """
+        Xvalues:list of labels
+        Yvalue : str : Y label
+        annee: year 2018 or 2019
+        """
+        Y2018=self.dataset_2018[Yvalue]
+        X2018=self.dataset_2018[Xvalues]
+        Y2019=self.dataset_2019[Yvalue]
+        X2019=self.dataset_2019[Xvalues]
+        
+        lm2018=LinearRegression()
+        reg2018=lm2018.fit(X2018,Y2018)
+        a2018=reg2018.coef_
+        b=reg2018.intercept_
+        Y_pred2018=lm2018.predict(X2018)
+        r218=reg2018.score(X2018,Y2018)
+        print(a2018)
+          
+        lm2019=LinearRegression()
+        reg2019=lm2019.fit(X2019,Y2019)
+        a2019=reg2019.coef_
+        b=reg2019.intercept_
+        Y_pred2019=lm2019.predict(X2019)
+        r219=reg2019.score(X2019,Y2019)
+        
+        print(a2019)
+        print(r218,r219)
+        
+       
     def write_csv_glob(self,Xvalues,Yvalue,pathfinal):
         """
         Xvalues : list of labels
@@ -133,7 +142,7 @@ class Data(object):
                
                 writer.writerow(row)
                 
-
+                
         
     
 if __name__ == '__main__':
@@ -142,12 +151,12 @@ if __name__ == '__main__':
     pathfinal="/Volumes/My Passport 1/TempNaomi/Donnees/Planet/"
     Xvalues= ['NDVI value',' NDVI norm value','EVI value',' GNDVI value','Excess green value',' MSVAI value']
     Yvalue='yield estimation value(kg.m-1)'
-    Xvalue =' MSVAI value'
+    Xvalue =' GNDVI value'
     A=Data(path2018,path2019)
-    A.reglin(Xvalue,Yvalue)
+    A.reglin_multiple(Xvalues,Yvalue)
     #A.write_csv_glob(Xvalues,Yvalue,pathfinal)
     #print(A.r218,A.r219)
-    A.showreg(Xvalue,Yvalue,'2018')
+    #A.showreg(Xvalue,Yvalue,'2019')
     
         
 
