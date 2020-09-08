@@ -9,16 +9,15 @@ Created on Mon Sep  7 21:54:48 2020
 
 import numpy as np
 import pandas as pd
-from sklearn import linear_model
-from sklearn.linear_model import LinearRegression, Ridge
-from sklearn.cross_decomposition import PLSRegression
+
+from sklearn.linear_model import LinearRegression
+
 from sklearn.metrics import r2_score, mean_squared_error
 
 import matplotlib.pyplot as plt
 #import scipy.stats
 import csv
-from os import listdir
-import os
+
 
 def regression_lineaire(X,Y):
     """
@@ -129,7 +128,7 @@ class Data(object):
         
         nombre_indices=len(Xvalues)
         
-        with open(pathfinal+'RegressionMultiples_modif.csv', 'w',newline='') as csvfile:
+        with open(pathfinal+'RegressionMultiples.csv', 'w',newline='') as csvfile:
             fieldnames = ['coefficient','2018','2019']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
