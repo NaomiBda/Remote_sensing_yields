@@ -47,20 +47,6 @@ def show_regression(X,Y,Xvalue,Yvalue):
     plt.ylabel(Yvalue)
     plt.show()
  
-
-  
-def show_regression(X,Y,Xvalue,Yvalue):
-    """
-    Xvalue and Yvalue are the labels
-    """
-    (a,b,r2,Y_pred,rmse,relat_rmse)=regression_lineaire(X,Y)
-    plt.scatter(Y_pred,Y)
-    plt.plot(Y_pred,Y_pred,color='red')
-    plt.title("r^2 = "+str(r2)[:5])
-    plt.xlabel('Valeurs prédites avec l\'indice ' +str(Xvalue))
-    plt.ylabel(Yvalue)
-    plt.show()
-    
     
 class Data(object):
     
