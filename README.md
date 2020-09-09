@@ -33,5 +33,6 @@ You need :
 * cross_val.py : tentative de cross-validation
 * lai.py : calculs sur le lai
 * lecture_shapefiles.py: permet d'ouvrir des shapefiles et de les exploiter en python
+* modelefinal.py : spatiallisation du rendement à l'echelle satellite.
 
 
